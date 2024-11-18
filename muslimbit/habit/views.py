@@ -1,5 +1,5 @@
 from django.contrib.auth.models import User
-from .serializers import RegisterSerializer, LoginSerializer
+from .serializers import RegisterSerializer, LoginSerializer, UserProfileSerializer
 from rest_framework import generics, status
 from rest_framework.views import APIView
 from rest_framework.authtoken.models import Token
@@ -35,3 +35,11 @@ class LogoutView(APIView):
             return Response({"message": "Successfully logged out."}, status=status.HTTP_200_OK)
         except Token.DoesNotExist:
             return Response({"error": "Token not found."}, status=status.HTTP_400_BAD_REQUEST)  
+class UserProfileView(generics.RetrieveUpdateAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserProfileSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_object(self):
+        # Ensure the logged-in user is modifying their own data
+        return self.request.user
